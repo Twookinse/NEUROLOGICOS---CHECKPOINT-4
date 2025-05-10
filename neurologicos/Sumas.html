@@ -1,0 +1,442 @@
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Test de Sumas Fugaces - Secuencia y opciones</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f766e, #2dd4bf);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+    #app {
+      background: rgba(255 255 255 / 0.12);
+      border-radius: 15px;
+      padding: 20px 25px;
+      width: 100%;
+      max-width: 360px;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 20px 30px rgb(0 0 0 / 0.25);
+    }
+    h1 {
+      font-weight: 600;
+      margin-bottom: 0.1em;
+      font-size: 1.8rem;
+      text-align: center;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    }
+    p.description {
+      font-size: 1rem;
+      text-align: center;
+      line-height: 1.3;
+      color: #d1f7f3;
+      margin-bottom: 1.5em;
+    }
+    #instructions {
+      font-size: 1rem;
+      line-height: 1.4;
+      background: rgba(255 255 255 / 0.15);
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    #difficulty-select {
+      background: rgba(255 255 255 / 0.15);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #e3fcec;
+    }
+    #difficulty-select label {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    #difficulty-select input[type="radio"] {
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    #start-btn {
+      display: block;
+      margin: 0 auto 20px auto;
+      background: #14b8a6;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      box-shadow: 0 5px 10px rgb(20 184 166 / 0.55);
+    }
+    #start-btn:hover,
+    #start-btn:focus {
+      background: #0d9488;
+      outline: none;
+    }
+    #sequence-display {
+      font-size: 4rem;
+      font-weight: 700;
+      height: 120px;
+      line-height: 120px;
+      text-align: center;
+      user-select: none;
+      margin-bottom: 30px;
+      color: #e0f7f4;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    #choices {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .choice-btn {
+      flex: 1 1 40%;
+      min-width: 120px;
+      background: #0284c7;
+      border: none;
+      border-radius: 40px;
+      padding: 14px 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.25s ease, transform 0.15s ease;
+      box-shadow: 0 8px 24px rgb(2 132 199 / 0.5);
+      user-select: none;
+    }
+    .choice-btn:hover,
+    .choice-btn:focus {
+      background: #0ea5e9;
+      outline: none;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgb(14 165 233 / 0.8);
+    }
+    #progress {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #summary {
+      text-align: center;
+      margin-top: 5px;
+    }
+    #summary h2 {
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+      color: #cef0f7;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+    #summary p {
+      font-size: 1rem;
+      margin: 5px 0;
+      color: #cdeff1;
+    }
+    #download-btn {
+      margin-top: 15px;
+      background: #0ea5e9;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgb(14 165 233 / 0.8);
+      transition: background-color 0.3s ease;
+    }
+    #download-btn:hover,
+    #download-btn:focus {
+      background: #0284c7;
+      outline: none;
+    }
+
+    /* Hide choices until needed */
+    #choices[aria-hidden="true"] {
+      display: none;
+    }
+
+    /* Responsive for small height */
+    @media (max-height: 600px) {
+      #app {
+        min-height: auto;
+        padding: 15px 20px;
+      }
+      #sequence-display {
+        font-size: 3rem;
+        height: 90px;
+        line-height: 90px;
+        margin-bottom: 20px;
+      }
+      .choice-btn {
+        font-size: 1.1rem;
+        min-width: 100px;
+        padding: 12px 0;
+      }
+    }
+  </style>
+  </head>
+  <body>
+    <div id="app" role="main" aria-live="polite">
+      <h1>Test de Sumas Fugaces</h1>
+      <p class="description">Observa la secuencia rápida de números y suma su valor. Luego selecciona la suma correcta entre las opciones.</p>
+
+      <section id="instructions" aria-label="Instrucciones">
+        Presiona "Comenzar" para iniciar el test.<br>
+        Aparecerán 5 números uno tras otro, con rapidez.<br>
+        Cuando termine la secuencia, selecciona la suma correcta entre las opciones.
+      </section>
+
+      <section id="difficulty-select" aria-label="Seleccionar dificultad">
+        <label>
+          <input type="radio" name="digitCount" value="1" checked />
+          Números de 1 dígito (1-9)
+        </label>
+        <label>
+          <input type="radio" name="digitCount" value="2" />
+          Números de 2 dígitos (10-99)
+        </label>
+      </section>
+
+      <button id="start-btn" aria-label="Comenzar test">Comenzar</button>
+
+      <section id="test-area" hidden>
+        <div id="progress" aria-live="polite" aria-atomic="true">Preparando...</div>
+        <div id="sequence-display" aria-live="assertive" aria-atomic="true" aria-label="Secuencia de números"></div>
+        <div id="choices" role="group" aria-label="Opciones de suma" aria-hidden="true"></div>
+      </section>
+
+      <section id="summary" hidden aria-live="polite" aria-atomic="true">
+        <h2>Resultados</h2>
+        <p id="result-accuracy"></p>
+        <p id="result-time"></p>
+        <button id="download-btn" aria-label="Descargar resultados">Descargar Resultados</button>
+      </section>
+    </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const TOTAL_TRIALS = 10;
+      const SEQUENCE_LENGTH = 5;
+      const DISPLAY_TIME_MS = 2000; // number visible
+      const GAP_TIME_MS = 500; // blank gap
+
+      // Elements
+      const startBtn = document.getElementById('start-btn');
+      const instructions = document.getElementById('instructions');
+      const difficultySelect = document.getElementById('difficulty-select');
+      const testArea = document.getElementById('test-area');
+      const progressDisplay = document.getElementById('progress');
+      const sequenceDisplay = document.getElementById('sequence-display');
+      const choicesContainer = document.getElementById('choices');
+      const summary = document.getElementById('summary');
+      const resultAccuracy = document.getElementById('result-accuracy');
+      const resultTime = document.getElementById('result-time');
+      const downloadBtn = document.getElementById('download-btn');
+
+      // State
+      let trials = [];
+      let currentTrialIndex = 0;
+      let responseStartTime = 0;
+      let results = [];
+      let digitCount = 1; // 1 or 2 digit numbers
+
+      // Utility shuffle
+      function shuffleArray(arr) {
+        for (let i = arr.length -1; i >0; i--) {
+          const j = Math.floor(Math.random() * (i+1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      // Generate a random integer given digit count
+      function randomNumberByDigits(digits) {
+        if(digits === 1) return 1 + Math.floor(Math.random() * 9); // 1-9
+        else return 10 + Math.floor(Math.random() * 90); // 10-99
+      }
+
+      // Generate a trial: sequence of SEQUENCE_LENGTH random integers in correct digit range, sum computed
+      function generateTrial() {
+        const seq = [];
+        for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+          seq.push(randomNumberByDigits(digitCount));
+        }
+        const sum = seq.reduce((a,b) => a + b, 0);
+        return {sequence: seq, sum};
+      }
+
+      // Generate multiple trials
+      function generateTrials() {
+        const out = [];
+        for(let i=0; i< TOTAL_TRIALS; i++) {
+          out.push(generateTrial());
+        }
+        return out;
+      }
+
+      // Generate plausible distractor options near the sum (no duplicates)
+      function generateOptions(correctSum) {
+        const options = new Set();
+        options.add(correctSum);
+        while (options.size < 4) {
+          // distractor within approx +/- 10% or +/- 10 range, adapt by digit count range
+          let delta = Math.floor(Math.random() * (correctSum * 0.2 + 4)) - (correctSum * 0.1 + 2);
+          if (delta === 0) delta = 1;
+          let val = Math.round(correctSum + delta);
+          if (val < 1) val = correctSum + Math.abs(delta) + 1;
+          options.add(val);
+        }
+        return shuffleArray(Array.from(options));
+      }
+
+      // Show the number sequence quickly, one number at a time, with brief gap
+      // Return a promise that resolves when sequence display is done
+      function showSequence(seq) {
+        return new Promise((resolve) => {
+          let i = 0;
+          function showNext() {
+            if (i >= seq.length) {
+              sequenceDisplay.textContent = '';
+              resolve();
+              return;
+            }
+            // Show number
+            sequenceDisplay.textContent = seq[i];
+            i++;
+            setTimeout(() => {
+              // Clear display
+              sequenceDisplay.textContent = '';
+              setTimeout(showNext, GAP_TIME_MS);
+            }, DISPLAY_TIME_MS);
+          }
+          showNext();
+        });
+      }
+
+      // Show multiple choice options buttons
+      // Attach click handlers to record the answer
+      function showChoices(options, correctAnswer) {
+        choicesContainer.innerHTML = '';
+        choicesContainer.setAttribute('aria-hidden', 'false');
+
+        options.forEach(option => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.textContent = option;
+          btn.setAttribute('aria-label', `Seleccionar suma ${option}`);
+          btn.addEventListener('click', () => {
+            const rt = performance.now() - responseStartTime;
+            const correct = option === correctAnswer;
+            // Store trial result
+            results.push({
+              trial: currentTrialIndex + 1,
+              sequence: trials[currentTrialIndex].sequence.slice(),
+              correctSum: correctAnswer,
+              selectedOption: option,
+              correct,
+              responseTimeMs: Math.round(rt)
+            });
+            choicesContainer.setAttribute('aria-hidden', 'true');
+            currentTrialIndex++;
+            if (currentTrialIndex < trials.length) {
+              runTrial(currentTrialIndex);
+            } else {
+              endTest();
+            }
+          });
+          choicesContainer.appendChild(btn);
+        });
+
+        responseStartTime = performance.now();
+      }
+
+      // Run one trial
+      async function runTrial(index) {
+        progressDisplay.textContent = `Prueba ${index + 1} de ${TOTAL_TRIALS}`;
+        // Show sequence
+        await showSequence(trials[index].sequence);
+        // Show answer options
+        const options = generateOptions(trials[index].sum);
+        showChoices(options, trials[index].sum);
+      }
+
+      // Starts test, resets state
+      function startTest() {
+        // Get digit count from radio
+        const selectedRadio = document.querySelector('input[name="digitCount"]:checked');
+        digitCount = selectedRadio ? Number(selectedRadio.value) : 1;
+
+        startBtn.disabled = true;
+        difficultySelect.hidden = true;
+        instructions.hidden = true;
+        startBtn.hidden = true;
+        summary.hidden = true;
+        testArea.hidden = false;
+        trials = generateTrials();
+        results = [];
+        currentTrialIndex = 0;
+        runTrial(0).finally(() => {
+          startBtn.disabled = false;
+        });
+      }
+
+      // Show final results
+      function endTest() {
+        testArea.hidden = true;
+        summary.hidden = false;
+        const totalCorrect = results.filter(r => r.correct).length;
+        const total = results.length;
+        const avgTime = Math.round(results.reduce((sum, r) => sum + r.responseTimeMs, 0) / total);
+        resultAccuracy.textContent = `Precisión: ${totalCorrect} de ${total} respuestas correctas (${((totalCorrect/total)*100).toFixed(1)}%)`;
+        resultTime.textContent = `Tiempo promedio de respuesta: ${avgTime} ms`;
+        // Save results to localStorage
+        localStorage.setItem('sumasFugacesSecuenciaResults', JSON.stringify(results));
+      }
+
+      // Download JSON results
+      function downloadResults() {
+        const dataStr = JSON.stringify(results, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sumas_fugaces_secuencia_resultados_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Listeners
+      startBtn.addEventListener('click', startTest);
+      downloadBtn.addEventListener('click', downloadResults);
+
+    })();
+  </script>
+  </body>
+  </html>
+

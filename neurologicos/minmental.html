@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Test Minimental</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      background: #2c2c54;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    h2, h3 {
+      margin: 0 0 1rem 0;
+      font-weight: 700;
+      text-align: center;
+    }
+    p.question {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      min-height: 3em;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.6rem;
+      background-color: #847ef1;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-transform: capitalize;
+      user-select: none;
+    }
+    button:hover {
+      background-color: #5a4ddb;
+    }
+    .score-report {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      background: #1e1e2f;
+      border-radius: 8px;
+      padding: 0.75rem;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .incorrect {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+    .correct {
+      color: #4cd137;
+      font-weight: 700;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    @media (max-width: 400px) {
+      .card {
+        max-width: 100%;
+        padding: 1rem;
+        border-radius: 0;
+        height: 100vh;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const today = new Date();
+    const dayOfWeek = today.toLocaleDateString('es-ES', { weekday: 'long' });
+    const dayOfMonth = today.getDate();
+    const monthName = today.toLocaleDateString('es-ES', { month: 'long' });
+    const year = today.getFullYear().toString();
+    const month = today.getMonth() + 1;
+    const season = 
+      (month >= 12 || month <= 2) ? 'invierno' :
+      (month >= 3 && month <= 5) ? 'primavera' :
+      (month >= 6 && month <= 8) ? 'verano' :
+      'otoño';
+    const place = 'casa';
+
+    const questions = [
+      { question: '¿Qué día de la semana es hoy?', options: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'], answer: dayOfWeek.toLowerCase() },
+      { question: '¿Qué día del mes es hoy?',  answer: dayOfMonth.toString() , type: 'text'},
+      { question: '¿En qué mes estamos?', options: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], answer: monthName.toLowerCase() },
+      { question: '¿En qué año estamos?', answer: year , type: 'text'},
+      { question: '¿En qué estación del año estamos?', options: ['invierno', 'primavera', 'verano', 'otoño'], answer: season },
+      { question: '¿En qué país estás ahora?',  answer: 'bolivia', type: 'text' },
+      { question: '¿En qué ciudad estás?', answer: 'la paz' , type: 'text'},
+      { question: '¿Dónde estás ahora?', options: ['En casa', 'En la oficina', 'En un hospital', 'Otro lugar'], answer: place.toLowerCase() },
+      { question: 'Memoriza estas tres palabras: **balon**, **bandera**, **arbol**. (No debes seleccionarlas, solo memorízalas).', options: ['Continuar'], answer: 'Continuar' },
+
+
+        //.. seccion de restas 
+      { question: '¿Cuánto es 100 menos 7?', answer: '93', type: 'text' },
+      { question: '¿Cuánto es 93 menos 7?', answer: '86' , type: 'text'},
+      { question: '¿Cuánto es 86 menos 7?',  answer: '79' , type: 'text'},
+      { question: '¿Cuánto es 79 menos 7?',  answer: '72' , type: 'text'},
+      
+
+
+
+      
+      { question: '¿Cuál de estas opciones se usa para escribir?', options: ['lápiz', 'regla', 'papel'], answer: 'lápiz' },
+      { question: '¿Cuál de estas opciones indica la hora?', options: ['teléfono', 'reloj', 'radio'], answer: 'reloj' },
+      { question: 'Selecciona la acción que coincide con esta instrucción: "Cierra los ojos."', options: ['cerrar los ojos', 'abrir los ojos', 'bostezar'], answer: 'cerrar los ojos' },
+      { question: '¿Cuál de las siguientes figuras tiene tres lados?', options: ['círculo', 'cuadrado', 'triángulo'], answer: 'triángulo' },
+      { question: '¿Qué debes hacer si alguien te dice "Cierra los ojos"?', options: ['dejar los ojos abiertos', 'cerrar los ojos', 'mirar con atención'], answer: 'cerrar los ojos' },
+      { question: '¿Cuál de las siguientes opciones es una frase completa con sentido?', options: ['Comiendo una manzana.', 'Estoy en casa.', 'Saltando feliz.'], answer: 'Estoy en casa.' },
+      { question: 'Selecciona la opción que es una frase completa con sujeto y predicado:', options: ['Feliz hoy.', 'Estoy feliz hoy.', 'Comiendo manzana.'], answer: 'Estoy feliz hoy.' },
+      { question: '¿Cuál figura es simétrica?', options: ['triángulo equilátero', 'figura irregular', 'línea curva'], answer: 'triángulo equilátero' },
+      { question: 'Selecciona la forma que coincide con este símbolo: ○', options: ['cuadro', 'círculo', 'triángulo'], answer: 'círculo' },
+      { question: '¿Cuántos días tiene un año común?', options: ['365', '366', '360'], answer: '365' },
+      { question: '¿Qué color resulta de mezclar azul y amarillo?', options: ['verde', 'naranja', 'morado'], answer: 'verde' },
+      { question: '¿Qué animal es conocido como "el mejor amigo del hombre"?', options: ['gato', 'perro', 'conejo'], answer: 'perro' },
+      { question: '¿Cuál es la capital de Francia?', options: ['París', 'Madrid', 'Londres'], answer: 'parís' },
+      { question: '¿Qué parte del cuerpo usamos para caminar?', options: ['manos', 'piernas', 'cabeza'], answer: 'piernas' },
+      { question: '¿Cuáles eran las tres palabras que debías memorizar?', answer: 'balon bandera arbol', type: 'text' }
+    ];
+
+    function CognitiveTests() {
+      const [current, setCurrent] = useState(0);
+      const [score, setScore] = useState(0);
+      const [finished, setFinished] = useState(false);
+      const [answers, setAnswers] = useState([]); 
+
+      function handleAnswer(option) {
+  const normalizedOption = option.toLowerCase().trim();
+  const normalizedAnswer = questions[current].answer.toLowerCase().trim();
+  const isCorrect = normalizedOption === normalizedAnswer;
+
+  if (isCorrect) setScore(prev => prev + 1);
+
+  const newAnswer = {
+    question: questions[current].question,
+    selected: option,
+    correctAnswer: questions[current].answer,
+    correct: isCorrect
+  };
+
+  const updatedAnswers = [...answers, newAnswer];
+
+  // Si el usuario ya respondió las dos primeras restas (índices 9 y 10)
+  if (current === 10) {
+    const firstSubtraction = updatedAnswers[9];
+    const secondSubtraction = updatedAnswers[10];
+
+    if (!firstSubtraction.correct && !secondSubtraction.correct) {
+      // Cambiar preguntas 11 y 12 por más fáciles
+      questions[11] = {
+        question: '¿Cuánto es 100 menos 3?',answer: '97', type: 'text'
+      };
+      questions[12] = {
+        question: '¿Cuánto es 97 menos 3?',answer: '94', type: 'text'
+      };
+    }
+  }
+
+  setAnswers(updatedAnswers);
+
+  const next = current + 1;
+  if (next < questions.length) {
+    setCurrent(next);
+  } else {
+    setFinished(true);
+  }
+}
+
+
+      function resetTest() {
+        setCurrent(0);
+        setScore(0);
+        setFinished(false);
+        setAnswers([]);
+      }
+
+      function downloadExcel() {
+        const data = answers.map((a, i) => ({
+          '#': i + 1,
+          Pregunta: a.question,
+          'Respuesta dada': a.selected,
+          'Respuesta correcta': a.correctAnswer,
+          Estado: a.correct ? 'Correcto' : 'Incorrecto'
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Respuestas');
+        XLSX.writeFile(workbook, 'reporte_test_minimental.xlsx');
+      }
+
+      return (
+        <div className="card" role="main" aria-live="polite" aria-atomic="true">
+          {!finished ? (
+            <>
+              <h3>Pregunta {current + 1} de {questions.length}</h3>
+              <p className="question">{questions[current].question}</p>
+
+              {questions[current].type === 'text' ? (
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const inputValue = e.target.elements[0].value;
+                  handleAnswer(inputValue);
+                }}>
+                  <input type="text" name="textAnswer" placeholder="Escribe tu respuesta" required />
+                  <button type="submit">Enviar</button>
+                </form>
+              ) : (
+                questions[current].options.map((option, i) => (
+                  <button key={i} onClick={() => handleAnswer(option)} aria-label={`Opción ${option}`}>
+                    {option}
+                  </button>
+                ))
+              )}
+            </>
+          ) : (
+            <>
+              <h2>Test finalizado</h2>
+              <p>Tu puntaje: <span className="correct">{score}</span> de {questions.length}</p>
+              <div className="score-report" aria-label="Reporte de respuestas incorrectas">
+                <h3>Respuestas incorrectas:</h3>
+                {answers.filter(a => !a.correct).length === 0 ? (
+                  <p className="correct">Felicidades, todas tus respuestas son correctas.</p>
+                ) : (
+                  <ul>
+                    {answers.filter(a => !a.correct).map((a, idx) => (
+                      <li key={idx}>
+                        <strong>{a.question}</strong><br />
+                        Tu respuesta: <span className="incorrect">{a.selected}</span><br />
+                        Respuesta correcta: <span className="correct">{a.correctAnswer}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <button onClick={downloadExcel}>Descargar reporte Excel</button>
+              <button onClick={resetTest} style={{ marginTop: '1rem' }}>Reiniciar test</button>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<CognitiveTests />);
+  </script>
+</body>
+</html>

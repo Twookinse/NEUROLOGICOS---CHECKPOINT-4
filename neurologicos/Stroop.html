@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Test de Stroop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        #app {
+            background: rgba(255 255 255 / 0.1);
+            border-radius: 15px;
+            padding: 20px 25px;
+            width: 100%;
+            max-width: 360px;
+            min-height: 540px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 30px rgb(0 0 0 / 0.2);
+        }
+        h1 {
+            font-weight: 600;
+            margin-bottom: 0.1em;
+            font-size: 1.8rem;
+            text-align: center;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+        p.description {
+            font-size: 1rem;
+            text-align: center;
+            line-height: 1.3;
+            color: #e0e0e0;
+            margin-bottom: 1.5em;
+        }
+        #instructions {
+            font-size: 1rem;
+            line-height: 1.4;
+            background: rgba(255 255 255 / 0.15);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+        #start-btn {
+            display: block;
+            margin: 0 auto 20px auto;
+            background: #f97316;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.25s ease;
+            box-shadow: 0 5px 10px rgb(249 115 22 / 0.5);
+        }
+        #start-btn:hover,
+        #start-btn:focus {
+            background: #ea580c;
+            outline: none;
+        }
+        #stroop-word {
+            text-align: center;
+            font-size: 3.8rem;
+            font-weight: 700;
+            height: 120px;
+            line-height: 120px;
+            margin-bottom: 25px;
+            user-select: none;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        #choices {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .choice-btn {
+            flex: 1 1 40%;
+            min-width: 120px;
+            background: #4c1d95;
+            border: none;
+            border-radius: 40px;
+            padding: 14px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.25s ease, transform 0.15s ease;
+            box-shadow: 0 5px 20px rgb(76 29 149 / 0.4);
+            user-select: none;
+        }
+        .choice-btn:hover,
+        .choice-btn:focus {
+            background: #6d28d9;
+            outline: none;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgb(109 40 217 / 0.6);
+        }
+        #progress {
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #summary {
+            text-align: center;
+            margin-top: 15px;
+        }
+        #summary h2 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #ffe;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+        }
+        #summary p {
+            font-size: 1rem;
+            margin: 5px 0;
+            color: #ddd;
+        }
+        #download-btn {
+            margin-top: 15px;
+            background: #10b981;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgb(16 185 129 / 0.6);
+            transition: background-color 0.3s ease;
+        }
+        #download-btn:hover,
+        #download-btn:focus {
+            background: #059669;
+            outline: none;
+        }
+        /* Responsive for small screens */
+        @media (max-height: 600px) {
+            #app {
+                min-height: auto;
+                padding: 15px 20px;
+            }
+            #stroop-word {
+                font-size: 3rem;
+                height: 90px;
+                line-height: 90px;
+                margin-bottom: 18px;
+            }
+            .choice-btn {
+                font-size: 1rem;
+                padding: 12px 0;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" role="main" aria-live="polite">
+        <h1>Test de Stroop</h1>
+        <p class="description">Identifica el <strong>color de la tinta</strong> en la que está escrito el texto, no la palabra.</p>
+
+        <section id="instructions" aria-label="Instrucciones">
+            Presiona "Comenzar" para iniciar el test.<br>
+            Se mostrarán palabras de colores en colores diferentes a su significado.<br>
+            El objetivo es seleccionar el color de la tinta lo más rápido y correcto posible.
+        </section>
+
+        <button id="start-btn" aria-label="Comenzar test">Comenzar</button>
+
+        <section id="test-area" hidden>
+            <div id="stroop-word" aria-live="polite" aria-atomic="true"></div>
+            <div id="choices" role="group" aria-label="Opciones de colores"></div>
+            <div id="progress" aria-live="polite" aria-atomic="true"></div>
+        </section>
+
+        <section id="summary" hidden aria-live="polite" aria-atomic="true">
+            <h2>Resultados</h2>
+            <p id="result-accuracy"></p>
+            <p id="result-time"></p>
+            <button id="download-btn" aria-label="Descargar resultados">Descargar Resultados</button>
+        </section>
+    </div>
+
+<script>
+    (() => {
+        'use strict';
+
+        // Colors and their Spanish names
+        const colors = [
+            {name: 'Rojo', code: '#dc2626'},
+            {name: 'Verde', code: '#16a34a'},
+            {name: 'Azul', code: '#2563eb'},
+            {name: 'Amarillo', code: '#eab308'},
+            {name: 'Morado', code: '#7c3aed'},
+            {name: 'Naranja', code: '#f97316'},
+        ];
+
+        // Number of trials
+        const TOTAL_TRIALS = 20;
+
+        // Elements
+        const startBtn = document.getElementById('start-btn');
+        const instructions = document.getElementById('instructions');
+        const testArea = document.getElementById('test-area');
+        const stroopWord = document.getElementById('stroop-word');
+        const choicesContainer = document.getElementById('choices');
+        const progressDisplay = document.getElementById('progress');
+        const summary = document.getElementById('summary');
+        const resultAccuracy = document.getElementById('result-accuracy');
+        const resultTime = document.getElementById('result-time');
+        const downloadBtn = document.getElementById('download-btn');
+
+        // State
+        let trials = [];
+        let currentTrialIndex = 0;
+        let trialStartTime = 0;
+        let results = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate trials — words and colors, ensuring word meaning and ink color differ
+        function generateTrials() {
+            const trialSet = [];
+            for (let i = 0; i < TOTAL_TRIALS; i++) {
+                let wordIndex, colorIndex;
+                do {
+                    wordIndex = Math.floor(Math.random() * colors.length);
+                    colorIndex = Math.floor(Math.random() * colors.length);
+                } while (colorIndex === wordIndex);
+
+                trialSet.push({
+                    word: colors[wordIndex].name,
+                    color: colors[colorIndex].code,
+                    colorName: colors[colorIndex].name,
+                });
+            }
+            return trialSet;
+        }
+
+        // Start test
+        function startTest() {
+            // Reset state
+            trials = generateTrials();
+            currentTrialIndex = 0;
+            results = [];
+            instructions.hidden = true;
+            startBtn.hidden = true;
+            summary.hidden = true;
+            testArea.hidden = false;
+            progressDisplay.textContent = `Prueba 1 de ${TOTAL_TRIALS}`;
+            showTrial(currentTrialIndex);
+        }
+
+        // Show a trial
+        function showTrial(index) {
+            const trial = trials[index];
+            stroopWord.textContent = trial.word;
+            stroopWord.style.color = trial.color;
+
+            choicesContainer.innerHTML = '';
+
+            // Shuffle colors for buttons so position varies
+            const shuffledColors = shuffleArray(colors.slice());
+
+            shuffledColors.forEach((c) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = c.name;
+                btn.style.backgroundColor = c.code;
+                btn.setAttribute('aria-label', `Seleccionar color ${c.name}`);
+                btn.addEventListener('click', () => handleAnswer(c.name));
+                choicesContainer.appendChild(btn);
+            });
+
+            // Start timing
+            trialStartTime = performance.now();
+        }
+
+        // Handle user's answer
+        function handleAnswer(selectedColorName) {
+            const trial = trials[currentTrialIndex];
+            const rt = performance.now() - trialStartTime;
+            const correct = selectedColorName === trial.colorName;
+
+            results.push({
+                trial: currentTrialIndex + 1,
+                word: trial.word,
+                inkColor: trial.colorName,
+                selectedColor: selectedColorName,
+                correct,
+                responseTimeMs: Math.round(rt),
+            });
+
+            currentTrialIndex++;
+            if (currentTrialIndex < TOTAL_TRIALS) {
+                progressDisplay.textContent = `Prueba ${currentTrialIndex + 1} de ${TOTAL_TRIALS}`;
+                showTrial(currentTrialIndex);
+            } else {
+                endTest();
+            }
+        }
+
+        // End test
+        function endTest() {
+            testArea.hidden = true;
+            summary.hidden = false;
+
+            const totalCorrect = results.filter(r => r.correct).length;
+            const totalResponses = results.length;
+            const avgTime = Math.round(results.reduce((sum, r) => sum + r.responseTimeMs, 0) / totalResponses);
+
+            resultAccuracy.textContent = `Precisión: ${totalCorrect} de ${totalResponses} respuestas correctas (${((totalCorrect / totalResponses) * 100).toFixed(1)}%)`;
+            resultTime.textContent = `Tiempo promedio de respuesta: ${avgTime} ms`;
+        }
+
+        // Download results as CSV file
+        function downloadResults() {
+            const csvRows = [];
+            // Header
+            csvRows.push(['Trial', 'Word', 'Ink Color', 'Selected Color', 'Correct', 'Response Time (ms)'].join(','));
+
+            // Data rows
+            results.forEach(result => {
+                csvRows.push([
+                    result.trial,
+                    result.word,
+                    result.inkColor,
+                    result.selectedColor,
+                    result.correct ? 'Si' : 'No', // Asegúrate de que "Sí" esté correctamente codificado
+                    result.responseTimeMs
+                ].join(','));
+            });
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' }); // Asegúrate de que la codificación sea UTF-8
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stroop_test_results_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startTest);
+        downloadBtn.addEventListener('click', downloadResults);
+
+        // Accessibility: allow keyboard navigation of color buttons
+        choicesContainer.addEventListener('keydown', (event) => {
+            const focusable = Array.from(choicesContainer.querySelectorAll('button'));
+            const currentIndex = focusable.indexOf(document.activeElement);
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                const nextIndex = (currentIndex + 1) % focusable.length;
+                focusable[nextIndex].focus();
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const prevIndex = (currentIndex - 1 + focusable.length) % focusable.length;
+                focusable[prevIndex].focus();
+            }
+        });
+
+    })();
+</script>
+</body>
+</html>

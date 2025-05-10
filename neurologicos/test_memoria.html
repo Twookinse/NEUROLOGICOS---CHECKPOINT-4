@@ -1,0 +1,431 @@
+<html lang="es">
+ <head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Test de span de memoria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
+    body {
+      font-family: "Inter", sans-serif;
+    }
+    .fade-out {
+      animation: fadeOut 1s forwards;
+    }
+    .fade-in {
+      animation: fadeIn 1s forwards;
+    }
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        visibility: hidden;
+      }
+      to {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+    /* Scroll for history */
+    #historyList {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+ </head>
+ <body
+   class="bg-gradient-to-b from-purple-600 via-purple-500 to-gray-800 min-h-screen flex flex-col items-center justify-center px-6 py-10 text-white"
+ >
+  <div
+    id="startScreen"
+    class="relative max-w-xs w-full text-center"
+  >
+   <!-- Large white circles background -->
+   <img
+     alt="Large white circle decorative background top left"
+     class="absolute top-10 left-6 rounded-full opacity-80"
+     height="120"
+     src="https://storage.googleapis.com/a1aa/image/1223a486-77ed-4561-1192-9be432bd82d2.jpg"
+     style="width: 120px; height: 120px"
+     width="120"
+   />
+   <img
+     alt="Large white circle decorative background bottom right"
+     class="absolute bottom-10 right-6 rounded-full opacity-80"
+     height="120"
+     src="https://storage.googleapis.com/a1aa/image/2f044f3d-1da1-490c-d08a-3148a290cd85.jpg"
+     style="width: 120px; height: 120px"
+     width="120"
+   />
+   <img
+     alt="Large white circle decorative background center"
+     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80"
+     height="120"
+     src="https://storage.googleapis.com/a1aa/image/3c75db1d-edb7-43f1-38f6-c0d73b64c6d4.jpg"
+     style="width: 120px; height: 120px"
+     width="120"
+   />
+   <img
+     alt="Large white circle decorative background bottom left"
+     class="absolute bottom-20 left-10 rounded-full opacity-80"
+     height="120"
+     src="https://storage.googleapis.com/a1aa/image/2c691056-9b05-4fb4-5ed8-6de18d6d9d71.jpg"
+     style="width: 120px; height: 120px"
+     width="120"
+   />
+   <div class="relative z-10 flex flex-col items-center space-y-3 text-white">
+    <p class="text-sm font-normal">Tarea 1 de 3</p>
+    <button
+      aria-label="Ver video instructivo"
+      class="flex flex-col items-center space-y-2"
+      type="button"
+    >
+     <div
+       class="bg-red-600 rounded-full w-20 h-20 flex items-center justify-center shadow-lg"
+     >
+      <i class="fas fa-play text-white text-3xl ml-[3px]"></i>
+     </div>
+     <span class="text-base font-normal">Ver video instructivo</span>
+    </button>
+    <h1 class="text-2xl font-extrabold leading-tight">
+     Test de span de memoria
+     <br />
+     de trabajo visual
+    </h1>
+    <div
+      class="inline-flex items-center bg-gray-400 bg-opacity-40 rounded-full px-3 py-1 text-xs font-semibold text-gray-900"
+    >
+     <i class="fas fa-stopwatch mr-1"></i> 2 MINUTOS
+    </div>
+    <div class="flex space-x-3 mt-3">
+     <img
+       alt="Icon with colored dots on gray background"
+       class="rounded"
+       height="40"
+       src="https://storage.googleapis.com/a1aa/image/cf4607a3-797a-42e9-f54e-6af1e0f1b870.jpg"
+       width="40"
+     />
+     <img
+       alt="Icon with gray squares on gray background"
+       class="rounded"
+       height="40"
+       src="https://storage.googleapis.com/a1aa/image/f1314d25-0b04-482d-bde7-27373642c4d2.jpg"
+       width="40"
+     />
+     <img
+       alt="Icon with circle and lines on gray background"
+       class="rounded"
+       height="40"
+       src="https://storage.googleapis.com/a1aa/image/e8c95a95-9994-49f2-0045-6ad4045d2694.jpg"
+       width="40"
+     />
+    </div>
+    <button
+      id="startBtn"
+      class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg text-lg"
+      type="button"
+    >
+     Empezar
+    </button>
+   </div>
+  </div>
+
+  <div
+    id="sequenceScreen"
+    class="hidden max-w-xs w-full text-center text-white flex flex-col items-center"
+  >
+   <h2 class="text-xl font-bold mb-4">Memoriza esta secuencia</h2>
+   <div
+     id="sequenceNumbers"
+     class="flex justify-center space-x-3 mb-6 flex-wrap text-3xl font-bold tracking-widest"
+   ></div>
+  </div>
+
+  <div
+    id="gameScreen"
+    class="hidden max-w-xs w-full text-center text-white flex flex-col items-center"
+  >
+   <h2 class="text-xl font-bold mb-4">
+    Selecciona los números que memorizaste
+   </h2>
+   <div
+     id="numberButtons"
+     class="grid grid-cols-5 gap-3 justify-center mb-6 w-full max-w-xs"
+   ></div>
+   <div
+     class="bg-gray-700 bg-opacity-50 rounded-lg p-4 text-left w-full max-w-xs mb-4"
+   >
+    <p>
+     <strong>Correctos:</strong> <span id="correctCount">0</span>
+    </p>
+    <p>
+     <strong>Errores:</strong> <span id="errorCount">0</span>
+    </p>
+   </div>
+   <button
+     id="finishBtn"
+     class="mb-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-lg"
+     type="button"
+   >
+    Terminar Test
+   </button>
+   <button
+     id="restartBtn"
+     class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg text-lg"
+     type="button"
+   >
+    Volver al inicio
+   </button>
+  </div>
+
+  <div
+    id="historyScreen"
+    class="hidden max-w-xs w-full text-white mt-8 bg-gray-900 bg-opacity-70 rounded-lg p-4 max-h-[350px] overflow-y-auto"
+  >
+   <h2 class="text-xl font-bold mb-4 text-center">Historial de Tests</h2>
+   <ul id="historyList" class="space-y-2 text-sm"></ul>
+  </div>
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const startScreen = document.getElementById("startScreen");
+    const sequenceScreen = document.getElementById("sequenceScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const historyScreen = document.getElementById("historyScreen");
+    const sequenceNumbersDiv = document.getElementById("sequenceNumbers");
+    const numberButtonsDiv = document.getElementById("numberButtons");
+    const correctCountSpan = document.getElementById("correctCount");
+    const errorCountSpan = document.getElementById("errorCount");
+    const historyList = document.getElementById("historyList");
+  
+    const numbers = Array.from({ length: 10 }, (_, i) => i + 1);
+    let sequence = [];
+    let correctCount = 0;
+    let currentSequenceIndex = 0;
+    let attemptCount = 0;
+
+    let errorCount = 0;
+    let selectedNumbers = new Set();
+    let startTime = null;
+    let timerInterval = null;
+    let phase = 1;
+    const totalPhases = 3;
+    const historyData = [];
+  
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+  
+    function showSequence() {
+      sequenceNumbersDiv.innerHTML = "";
+      sequence.forEach((num) => {
+        const span = document.createElement("span");
+        span.textContent = num;
+        span.className = "bg-white text-gray-900 font-bold rounded-lg px-4 py-2 w-12 inline-flex items-center justify-center";
+        sequenceNumbersDiv.appendChild(span);
+      });
+    }
+  
+    function showNumberButtons() {
+      numberButtonsDiv.innerHTML = "";
+      numbers.forEach((num) => {
+        const btn = document.createElement("button");
+        btn.textContent = num;
+        btn.className = "bg-gray-300 text-gray-900 font-bold rounded-lg py-3 text-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400";
+        btn.type = "button";
+        btn.addEventListener("click", () => handleSelection(num, btn));
+        numberButtonsDiv.appendChild(btn);
+      });
+    }
+  
+    function handleSelection(num, btn) {
+  if (selectedNumbers.has(num)) return;
+  selectedNumbers.add(num);
+  attemptCount++;
+
+  if (num === sequence[currentSequenceIndex]) {
+    correctCount++;
+    btn.classList.replace("bg-gray-300", "bg-green-500");
+    btn.classList.add("text-white");
+  } else {
+    errorCount++;
+    btn.classList.replace("bg-gray-300", "bg-red-500");
+    btn.classList.add("text-white");
+  }
+
+  currentSequenceIndex++; // Se mueve aquí, siempre avanza al siguiente índice
+  updateCounts();
+
+  // Si ya se hicieron todos los intentos (cantidad igual a la longitud de la secuencia)
+  if (attemptCount >= sequence.length) {
+    const duration = stopTimer();
+    addHistoryEntry(sequence.length, correctCount, errorCount, duration, phase);
+
+    if (phase < totalPhases) {
+      phase++;
+      prepareNewPhase();
+    } else {
+      finishBtn.click();
+    }
+  }
+}
+
+
+
+  
+    function updateCounts() {
+      correctCountSpan.textContent = correctCount;
+      errorCountSpan.textContent = errorCount;
+    }
+  
+    function resetGame() {
+      currentSequenceIndex = 0;
+      attemptCount = 0;
+      correctCount = 0;
+      errorCount = 0;
+      selectedNumbers.clear();
+      updateCounts();
+   /* CONTROLAMOS EL NIVEL DE CADA PRUEBA */
+      let length;
+      if (phase === 1) length = 4;
+      else if (phase === 2) length = 5;
+      else length = 6;
+  
+      sequence = shuffleArray(numbers.slice()).slice(0, length);
+    }
+  
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${minutes}m ${seconds}s`;
+    }
+  
+    function addHistoryEntry(length, correct, errors, durationMs, phaseNum) {
+      const li = document.createElement("li");
+      li.className = "border border-gray-600 rounded p-2 bg-gray-800 bg-opacity-80 flex justify-between items-center";
+      li.innerHTML = `
+        <div>
+          <strong>Fase:</strong> ${phaseNum} &nbsp;
+          <strong>Secuencia:</strong> ${length} números<br/>
+          <strong>Correctos:</strong> ${correct} &nbsp; <strong>Errores:</strong> ${errors}
+        </div>
+        <div class="text-xs text-gray-400">${formatTime(durationMs)}</div>
+      `;
+      historyList.appendChild(li);
+      historyData.push({
+        fase: phaseNum,
+        secuencia: length,
+        correctos: correct,
+        errores: errors,
+        duracion: formatTime(durationMs),
+      });
+    }
+  
+    function prepareNewPhase() {
+      gameScreen.classList.add("hidden");
+      sequenceScreen.classList.remove("hidden");
+      resetGame();
+      showSequence();
+      setTimeout(() => {
+        sequenceScreen.classList.add("fade-out");
+        setTimeout(() => {
+          sequenceScreen.classList.add("hidden");
+          sequenceScreen.classList.remove("fade-out");
+          gameScreen.classList.remove("hidden");
+          showNumberButtons();
+          startTimer();
+        }, 1000);
+      }, 3000);
+    }
+  
+    function generateCSV() {
+      const rows = ["Fase,Secuencia,Correctos,Errores,Duración"];
+      historyData.forEach((d) => {
+        rows.push(`${d.fase},${d.secuencia},${d.correctos},${d.errores},${d.duracion}`);
+      });
+      const csvContent = rows.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "historial_memoria.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  
+    startBtn.addEventListener("click", () => {
+      startScreen.classList.add("fade-out");
+      setTimeout(() => {
+        startScreen.classList.add("hidden");
+        startScreen.classList.remove("fade-out");
+        resetGame();
+        showSequence();
+        sequenceScreen.classList.remove("hidden");
+        setTimeout(() => {
+          sequenceScreen.classList.add("fade-out");
+          setTimeout(() => {
+            sequenceScreen.classList.add("hidden");
+            sequenceScreen.classList.remove("fade-out");
+            gameScreen.classList.remove("hidden");
+            showNumberButtons();
+            startTimer();
+          }, 1000);
+        }, 3000);
+      }, 1000);
+    });
+  
+    finishBtn.addEventListener("click", () => {
+      historyScreen.classList.remove("hidden");
+      if (!document.getElementById("downloadBtn")) {
+        const downloadBtn = document.createElement("button");
+        downloadBtn.id = "downloadBtn";
+        downloadBtn.className = "mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded";
+        downloadBtn.textContent = "Descargar CSV";
+        downloadBtn.onclick = generateCSV;
+        historyScreen.appendChild(downloadBtn);
+      }
+      finishBtn.disabled = true;
+      numberButtonsDiv.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    });
+  
+    restartBtn.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+  
+    function startTimer() {
+      startTime = Date.now();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {}, 1000);
+    }
+  
+    function stopTimer() {
+      if (!startTime) return 0;
+      const duration = Date.now() - startTime;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      startTime = null;
+      return duration;
+    }
+  </script>  
+ </body>
+</html>
